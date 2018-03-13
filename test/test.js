@@ -267,20 +267,27 @@ describe('/schedules/:scheduleId?delete=1', () => {
             const p1 = Comment.findAll({
               where: { scheduleId: scheduleId }
             }).then((comments) => {
-              // TODO テストを実装
+              // TODO テストを実装 コメント文が0であるかどうか
+              assert.equal(comments.length,0);
+              assert.equal(comments,0);
             });
             const p2 = Availability.findAll({
               where: { scheduleId: scheduleId }
             }).then((availabilities) => {
-              // TODO テストを実装
+              // TODO テストを実装 出欠が0であるかどうか
+              assert.equal(availabilities.length,0);
+              assert.equal(availabilities,0);
             });
             const p3 = Candidate.findAll({
               where: { scheduleId: scheduleId }
             }).then((candidates) => {
-              // TODO テストを実装
+              // TODO テストを実装　候補が0であるかどうか
+              assert.equal(candidates,0);
+              assert.equal(candidates.length,0);
             });
             const p4 = Schedule.findById(scheduleId).then((schedule) => {
-              // TODO テストを実装
+              // TODO テストを実装 scheduleはnullになる
+              assert.equal(!schedule,true);
             });
             Promise.all([p1, p2, p3, p4]).then(() => {
               if (err) return done(err);
