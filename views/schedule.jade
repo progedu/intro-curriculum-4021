@@ -12,7 +12,7 @@ block content
   table
     tr
       th 予定
-      each user in users
+      each user in users        
         th #{user.username}
     each candidate in candidates
       tr
@@ -21,7 +21,18 @@ block content
           - var availability = availabilityMapMap.get(user.userId).get(candidate.candidateId)
           - var availabilityLabels = ['欠', '？', '出'];
           td
+            //- 自分自身の予定はボタンを表示し
             if user.isSelf
+              //- availability は 0が欠席、1が不明、2が出席を表す
+              //- button #{availabilityLabels[availability]}
+              //- data-XXXXXXはHTML の要素に独自のデータを保有させたい場合に利用する属性
+              //- こんな感じのHTMLが発行される
+              //- <button 
+              //- data-schedule-id="81106aa9-4c17-47c5-af0f-8abce6303e7a"
+              //- data-user-id="16929852"
+              //- data-candidate-id="44"
+              //- data-availability="0"
+              //- class="availability-toggle-button">欠</button>
               button(class="availability-toggle-button"
                 data-schedule-id="#{schedule.scheduleId}"
                 data-user-id="#{user.userId}"
@@ -30,10 +41,14 @@ block content
             else
               p #{availabilityLabels[availability]}
     tr
+      //- コメント表示
       th コメント
+      //- ユーザーごとにコメントを表示する
       each user in users
+        //- 閲覧中ユーザー自身のコメントは編集できるようにする
         if user.isSelf
           td
+            //- コメントは各ユーザー１つなのでidを使っている
             p(id="self-comment") #{commentMap.get(user.userId)}
             button(id="self-comment-button"
               data-schedule-id="#{schedule.scheduleId}"
