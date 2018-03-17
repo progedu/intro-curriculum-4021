@@ -1,6 +1,8 @@
+//- layout.jadeを継承して
 extends layout
-
+//- contentブロックを書き換える
 block content
+  //- /schedulesにPOSTで入力データを渡す
   form(method="post", action="/schedules")
     div
       h5 予定名
@@ -9,6 +11,6 @@ block content
       h5 メモ
       textarea(name="memo")
     div
-      h5 候補日程 (改行して複数入力してください)
+      h5 候補名 (改行して複数入力してください)
       textarea(name="candidates")
     button(type="submit") 予定をつくる

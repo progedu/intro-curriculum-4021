@@ -1,7 +1,10 @@
+//- layoutテンプレートを継承して
 extends layout
-
+//- bontentブロックを書き換える
 block content
   h3 予定の編集
+  //- /schedules/81106aa9-4c17-47c5-af0f-8abce6303e7a?edit=1
+  //- にPOSTで入力データを送信する
   form(method="post", action="/schedules/#{schedule.scheduleId}?edit=1")
     div
       h5 予定名
