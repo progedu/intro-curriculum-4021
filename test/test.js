@@ -13,7 +13,9 @@ const deleteScheduleAggregate = require('../routes/schedules').deleteScheduleAgg
 describe('/login', () => {
   before(() => {
     passportStub.install(app);
-    passportStub.login({ username: 'testuser' });
+    passportStub.login({
+      username: 'testuser'
+    });
   });
 
   after(() => {
@@ -49,7 +51,10 @@ describe('/logout', () => {
 describe('/schedules', () => {
   before(() => {
     passportStub.install(app);
-    passportStub.login({ id: 0, username: 'testuser' });
+    passportStub.login({
+      id: 0,
+      username: 'testuser'
+    });
   });
 
   after(() => {
@@ -58,10 +63,17 @@ describe('/schedules', () => {
   });
 
   it('予定が作成でき、表示される', (done) => {
-    User.upsert({ userId: 0, username: 'testuser' }).then(() => {
+    User.upsert({
+      userId: 0,
+      username: 'testuser'
+    }).then(() => {
       request(app)
         .post('/schedules')
-        .send({ scheduleName: 'テスト予定1', memo: 'テストメモ1\r\nテストメモ2', candidates: 'テスト候補1\r\nテスト候補2\r\nテスト候補3' })
+        .send({
+          scheduleName: 'テスト予定1',
+          memo: 'テストメモ1\r\nテストメモ2',
+          candidates: 'テスト候補1\r\nテスト候補2\r\nテスト候補3'
+        })
         .expect('Location', /schedules/)
         .expect(302)
         .end((err, res) => {
@@ -75,7 +87,9 @@ describe('/schedules', () => {
             .expect(/テスト候補2/)
             .expect(/テスト候補3/)
             .expect(200)
-            .end((err, res) => { deleteScheduleAggregate(createdSchedulePath.split('/schedules/')[1], done, err);});
+            .end((err, res) => {
+              deleteScheduleAggregate(createdSchedulePath.split('/schedules/')[1], done, err);
+            });
         });
     });
   });
@@ -84,7 +98,10 @@ describe('/schedules', () => {
 describe('/schedules/:scheduleId/users/:userId/candidates/:candidateId', () => {
   before(() => {
     passportStub.install(app);
-    passportStub.login({ id: 0, username: 'testuser' });
+    passportStub.login({
+      id: 0,
+      username: 'testuser'
+    });
   });
 
   after(() => {
@@ -93,24 +110,37 @@ describe('/schedules/:scheduleId/users/:userId/candidates/:candidateId', () => {
   });
 
   it('出欠が更新できる', (done) => {
-    User.upsert({ userId: 0, username: 'testuser' }).then(() => {
+    User.upsert({
+      userId: 0,
+      username: 'testuser'
+    }).then(() => {
       request(app)
         .post('/schedules')
-        .send({ scheduleName: 'テスト出欠更新予定1', memo: 'テスト出欠更新メモ1', candidates: 'テスト出欠更新候補1' })
+        .send({
+          scheduleName: 'テスト出欠更新予定1',
+          memo: 'テスト出欠更新メモ1',
+          candidates: 'テスト出欠更新候補1'
+        })
         .end((err, res) => {
           const createdSchedulePath = res.headers.location;
           const scheduleId = createdSchedulePath.split('/schedules/')[1];
           Candidate.findOne({
-            where: { scheduleId: scheduleId }
+            where: {
+              scheduleId: scheduleId
+            }
           }).then((candidate) => {
             // 更新がされることをテスト
             request(app)
               .post(`/schedules/${scheduleId}/users/${0}/candidates/${candidate.candidateId}`)
-              .send({ availability: 2 }) // 出席に更新
+              .send({
+                availability: 2
+              }) // 出席に更新
               .expect('{"status":"OK","availability":2}')
               .end((err, res) => {
                 Availability.findAll({
-                  where: { scheduleId: scheduleId }
+                  where: {
+                    scheduleId: scheduleId
+                  }
                 }).then((availabilities) => {
                   assert.equal(availabilities.length, 1);
                   assert.equal(availabilities[0].availability, 2);
@@ -126,7 +156,10 @@ describe('/schedules/:scheduleId/users/:userId/candidates/:candidateId', () => {
 describe('/schedules/:scheduleId/users/:userId/comments', () => {
   before(() => {
     passportStub.install(app);
-    passportStub.login({ id: 0, username: 'testuser' });
+    passportStub.login({
+      id: 0,
+      username: 'testuser'
+    });
   });
 
   after(() => {
@@ -135,21 +168,32 @@ describe('/schedules/:scheduleId/users/:userId/comments', () => {
   });
 
   it('コメントが更新できる', (done) => {
-    User.upsert({ userId: 0, username: 'testuser' }).then(() => {
+    User.upsert({
+      userId: 0,
+      username: 'testuser'
+    }).then(() => {
       request(app)
         .post('/schedules')
-        .send({ scheduleName: 'テストコメント更新予定1', memo: 'テストコメント更新メモ1', candidates: 'テストコメント更新候補1' })
+        .send({
+          scheduleName: 'テストコメント更新予定1',
+          memo: 'テストコメント更新メモ1',
+          candidates: 'テストコメント更新候補1'
+        })
         .end((err, res) => {
           const createdSchedulePath = res.headers.location;
           const scheduleId = createdSchedulePath.split('/schedules/')[1];
           // 更新がされることをテスト
           request(app)
             .post(`/schedules/${scheduleId}/users/${0}/comments`)
-            .send({ comment: 'testcomment' })
+            .send({
+              comment: 'testcomment'
+            })
             .expect('{"status":"OK","comment":"testcomment"}')
             .end((err, res) => {
               Comment.findAll({
-                where: { scheduleId: scheduleId }
+                where: {
+                  scheduleId: scheduleId
+                }
               }).then((comments) => {
                 assert.equal(comments.length, 1);
                 assert.equal(comments[0].comment, 'testcomment');
@@ -164,7 +208,10 @@ describe('/schedules/:scheduleId/users/:userId/comments', () => {
 describe('/schedules/:scheduleId?edit=1', () => {
   before(() => {
     passportStub.install(app);
-    passportStub.login({ id: 0, username: 'testuser' });
+    passportStub.login({
+      id: 0,
+      username: 'testuser'
+    });
   });
 
   after(() => {
@@ -173,24 +220,37 @@ describe('/schedules/:scheduleId?edit=1', () => {
   });
 
   it('予定が更新でき、候補が追加できる', (done) => {
-    User.upsert({ userId: 0, username: 'testuser' }).then(() => {
+    User.upsert({
+      userId: 0,
+      username: 'testuser'
+    }).then(() => {
       request(app)
         .post('/schedules')
-        .send({ scheduleName: 'テスト更新予定1', memo: 'テスト更新メモ1', candidates: 'テスト更新候補1' })
+        .send({
+          scheduleName: 'テスト更新予定1',
+          memo: 'テスト更新メモ1',
+          candidates: 'テスト更新候補1'
+        })
         .end((err, res) => {
           const createdSchedulePath = res.headers.location;
           const scheduleId = createdSchedulePath.split('/schedules/')[1];
           // 更新がされることをテスト
           request(app)
             .post(`/schedules/${scheduleId}?edit=1`)
-            .send({ scheduleName: 'テスト更新予定2', memo: 'テスト更新メモ2', candidates: 'テスト更新候補2' })
+            .send({
+              scheduleName: 'テスト更新予定2',
+              memo: 'テスト更新メモ2',
+              candidates: 'テスト更新候補2'
+            })
             .end((err, res) => {
               Schedule.findById(scheduleId).then((s) => {
                 assert.equal(s.scheduleName, 'テスト更新予定2');
                 assert.equal(s.memo, 'テスト更新メモ2');
               });
               Candidate.findAll({
-                where: { scheduleId: scheduleId }
+                where: {
+                  scheduleId: scheduleId
+                }
               }).then((candidates) => {
                 assert.equal(candidates.length, 2);
                 assert.equal(candidates[0].candidateName, 'テスト更新候補1');
@@ -206,7 +266,10 @@ describe('/schedules/:scheduleId?edit=1', () => {
 describe('/schedules/:scheduleId?delete=1', () => {
   before(() => {
     passportStub.install(app);
-    passportStub.login({ id: 0, username: 'testuser' });
+    passportStub.login({
+      id: 0,
+      username: 'testuser'
+    });
   });
 
   after(() => {
@@ -215,22 +278,33 @@ describe('/schedules/:scheduleId?delete=1', () => {
   });
 
   it('予定に関連する全ての情報が削除できる', (done) => {
-    User.upsert({ userId: 0, username: 'testuser' }).then(() => {
+    User.upsert({
+      userId: 0,
+      username: 'testuser'
+    }).then(() => {
       request(app)
         .post('/schedules')
-        .send({ scheduleName: 'テスト更新予定1', memo: 'テスト更新メモ1', candidates: 'テスト更新候補1' })
+        .send({
+          scheduleName: 'テスト更新予定1',
+          memo: 'テスト更新メモ1',
+          candidates: 'テスト更新候補1'
+        })
         .end((err, res) => {
           const createdSchedulePath = res.headers.location;
           const scheduleId = createdSchedulePath.split('/schedules/')[1];
 
           // 出欠作成
           const promiseAvailability = Candidate.findOne({
-            where: { scheduleId: scheduleId }
+            where: {
+              scheduleId: scheduleId
+            }
           }).then((candidate) => {
             return new Promise((resolve) => {
               request(app)
                 .post(`/schedules/${scheduleId}/users/${0}/candidates/${candidate.candidateId}`)
-                .send({ availability: 2 }) // 出席に更新
+                .send({
+                  availability: 2
+                }) // 出席に更新
                 .end((err, res) => {
                   if (err) done(err);
                   resolve();
@@ -242,7 +316,9 @@ describe('/schedules/:scheduleId?delete=1', () => {
           const promiseComment = new Promise((resolve) => {
             request(app)
               .post(`/schedules/${scheduleId}/users/${0}/comments`)
-              .send({ comment: 'testcomment' })
+              .send({
+                comment: 'testcomment'
+              })
               .expect('{"status":"OK","comment":"testcomment"}')
               .end((err, res) => {
                 if (err) done(err);
@@ -265,22 +341,28 @@ describe('/schedules/:scheduleId?delete=1', () => {
           // テスト
           promiseDeleted.then(() => {
             const p1 = Comment.findAll({
-              where: { scheduleId: scheduleId }
+              where: {
+                scheduleId: scheduleId
+              }
             }).then((comments) => {
-              // TODO テストを実装
+              assert.equal(comments.length, 0);
             });
             const p2 = Availability.findAll({
-              where: { scheduleId: scheduleId }
+              where: {
+                scheduleId: scheduleId
+              }
             }).then((availabilities) => {
-              // TODO テストを実装
+              assert.equal(availabilities.length, 0);
             });
             const p3 = Candidate.findAll({
-              where: { scheduleId: scheduleId }
+              where: {
+                scheduleId: scheduleId
+              }
             }).then((candidates) => {
-              // TODO テストを実装
+              assert.equal(candidates.length, 0);
             });
             const p4 = Schedule.findById(scheduleId).then((schedule) => {
-              // TODO テストを実装
+              assert.equal(!schedule, true);
             });
             Promise.all([p1, p2, p3, p4]).then(() => {
               if (err) return done(err);
