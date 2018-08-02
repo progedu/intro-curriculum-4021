@@ -238,7 +238,12 @@ function createCandidatesAndRedirect(candidateNames, scheduleId, res) {
 }
 
 function parseCandidateNames(req) {
-  return req.body.candidates.trim().split('\n').map((s) => s.trim());
+  if(req.body.candidates.length !== 0){
+    return req.body.candidates.trim().split('\n').map((s) => s.trim());
+  }
+  else {
+    return null;
+  }
 }
 
 module.exports = router;
