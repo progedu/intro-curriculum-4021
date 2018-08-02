@@ -150,13 +150,13 @@ function isMine(req, schedule) {
 }
 
 router.post('/:scheduleId', authenticationEnsurer, (req, res, next) => {
-  if (parseInt(req.query.edit) === 1) {
-    Schedule.findOne({
-      where: {
-        scheduleId: req.params.scheduleId
-      }
-    }).then((schedule) => {
-      if (isMine(req, schedule)) { // 作成者のみ
+  Schedule.findOne({
+    where: {
+      scheduleId: req.params.scheduleId
+    }
+  }).then((schedule) => {
+    if (isMine(req, schedule)) {
+      if (parseInt(req.query.edit) === 1) {
         const updatedAt = new Date();
         schedule.update({
           scheduleId: schedule.scheduleId,
@@ -167,7 +167,7 @@ router.post('/:scheduleId', authenticationEnsurer, (req, res, next) => {
         }).then((schedule) => {
           Candidate.findAll({
             where: { scheduleId: schedule.scheduleId },
-            order: '"candidateId" ASC'
+            order: [['"candidateId"', 'ASC']]
           }).then((candidates) => {
             // 追加されているかチェック
             const candidateNames = parseCandidateNames(req);
@@ -178,21 +178,21 @@ router.post('/:scheduleId', authenticationEnsurer, (req, res, next) => {
             }
           });
         });
+      } else if (parseInt(req.query.delete) === 1) {
+        deleteScheduleAggregate(req.params.scheduleId, () => {
+          res.redirect('/');
+        });
       } else {
-        const err = new Error('指定された予定がない、または、編集する権限がありません');
-        err.status = 404;
+        const err = new Error('不正なリクエストです');
+        err.status = 400;
         next(err);
       }
-    });
-  } else if (parseInt(req.query.delete) === 1) {
-    deleteScheduleAggregate(req.params.scheduleId, () => {
-      res.redirect('/');
-    });
-  } else {
-    const err = new Error('不正なリクエストです');
-    err.status = 400;
-    next(err);
-  }
+    } else {
+      const err = new Error('指定された予定がない、または、編集する権限がありません');
+      err.status = 404;
+      next(err);
+    }
+  });
 });
 
 function deleteScheduleAggregate(scheduleId, done, err) {
