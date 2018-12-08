@@ -204,11 +204,12 @@ describe('/schedules/:scheduleId?edit=1', () => {
 });
 
 describe('/schedules/:scheduleId?delete=1', () => {
+  // テスト前に実行すること
   before(() => {
     passportStub.install(app);
     passportStub.login({ id: 0, username: 'testuser' });
   });
-
+  // テスト後に実行すること
   after(() => {
     passportStub.logout();
     passportStub.uninstall(app);
@@ -267,20 +268,24 @@ describe('/schedules/:scheduleId?delete=1', () => {
             const p1 = Comment.findAll({
               where: { scheduleId: scheduleId }
             }).then((comments) => {
-              // TODO テストを実装
+              // TODO コメントテストを実装
+              assert.equal(comments,"");
             });
             const p2 = Availability.findAll({
               where: { scheduleId: scheduleId }
             }).then((availabilities) => {
-              // TODO テストを実装
+              // TODO 出欠テストを実装
+              assert.equal(availabilities,"");
             });
             const p3 = Candidate.findAll({
               where: { scheduleId: scheduleId }
             }).then((candidates) => {
-              // TODO テストを実装
+              // TODO 候補テストを実装
+              assert.equal(candidates,"");
             });
             const p4 = Schedule.findById(scheduleId).then((schedule) => {
-              // TODO テストを実装
+              // TODO 予定テストを実装
+              assert.equal(!schedule,true);
             });
             Promise.all([p1, p2, p3, p4]).then(() => {
               if (err) return done(err);
