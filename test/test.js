@@ -269,19 +269,27 @@ describe('/schedules/:scheduleId?delete=1', () => {
               where: { scheduleId: scheduleId }
             }).then((comments) => {
               // TODO テストを実装
+              console.log('comments type: ' + Object.prototype.toString.call(comments));
+              assert.equal(comments.length, 0);
             });
             const p2 = Availability.findAll({
               where: { scheduleId: scheduleId }
             }).then((availabilities) => {
               // TODO テストを実装
+              console.log('availabilities type: ' + Object.prototype.toString.call(availabilities));
+              assert.equal(availabilities.length, 0);
             });
             const p3 = Candidate.findAll({
               where: { scheduleId: scheduleId }
             }).then((candidates) => {
               // TODO テストを実装
+              console.log('candidates type: ' + Object.prototype.toString.call(candidates));
+              assert.equal(Candidate.length, 0);
             });
             const p4 = Schedule.findByPk(scheduleId).then((schedule) => {
               // TODO テストを実装
+              console.log('schedule type: ' + Object.prototype.toString.call(schedule));
+              assert.equal(!schedule, true);
             });
             Promise.all([p1, p2, p3, p4]).then(() => {
               if (err) return done(err);
