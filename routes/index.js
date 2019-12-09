@@ -11,7 +11,7 @@ router.get('/', (req, res, next) => {
       where: {
         createdBy: req.user.id
       },
-      order: '"updatedAt" DESC'
+      order: [['"updatedAt"', 'DESC']]
     }).then((schedules) => {
       res.render('index', {
         title: title,
