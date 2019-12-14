@@ -263,25 +263,38 @@ describe('/schedules/:scheduleId?delete=1', () => {
             });
           });
 
+
+          /* findAllはオブジェクトの配列を、findByPkは単なるオブジェクトをthenの無名関数の引数に渡す!!!!*/
           // テスト
           promiseDeleted.then(() => {
             const p1 = Comment.findAll({
               where: { scheduleId: scheduleId }
+              //commentsには配列が入っている。
             }).then((comments) => {
               // TODO テストを実装
+              //なぜlengthを使うのか?
+              //なぜ!commemts = trueではだめなのか。
+              //そもそも、commentsは配列なので、配列自体がなくなったわけではない。配列の中身がなくなったことになる。
+              //そのため、comments自体がnullだったり、!commentsがtrueだったりはしない。
+              //コメント配列の中身の数は、comments.lengthで表す。
+              assert.equal(comments.length, 0);
             });
             const p2 = Availability.findAll({
               where: { scheduleId: scheduleId }
             }).then((availabilities) => {
               // TODO テストを実装
+              assert.equal(availabilities.length, 0);
             });
             const p3 = Candidate.findAll({
               where: { scheduleId: scheduleId }
             }).then((candidates) => {
               // TODO テストを実装
+              assert.equal(candidates.length, 0);
             });
+            //Scheduleの場合は、findByPkを使ってひとつのidだけのオブジェクトの確認なので、!schedule, trueがなりたつ。
             const p4 = Schedule.findByPk(scheduleId).then((schedule) => {
               // TODO テストを実装
+              assert.equal(!schedule, true);
             });
             Promise.all([p1, p2, p3, p4]).then(() => {
               if (err) return done(err);
