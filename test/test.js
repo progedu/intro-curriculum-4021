@@ -269,19 +269,23 @@ describe('/schedules/:scheduleId?delete=1', () => {
               where: { scheduleId: scheduleId }
             }).then((comments) => {
               // TODO テストを実装
+              deleteScheduleAggregate(scheduleId, done, err);
             });
             const p2 = Availability.findAll({
               where: { scheduleId: scheduleId }
             }).then((availabilities) => {
               // TODO テストを実装
+              deleteScheduleAggregate(scheduleId, done, err);
             });
             const p3 = Candidate.findAll({
               where: { scheduleId: scheduleId }
             }).then((candidates) => {
               // TODO テストを実装
+              deleteScheduleAggregate(scheduleId, done, err);
             });
             const p4 = Schedule.findByPk(scheduleId).then((schedule) => {
               // TODO テストを実装
+              deleteScheduleAggregate(scheduleId, done, err);
             });
             Promise.all([p1, p2, p3, p4]).then(() => {
               if (err) return done(err);
