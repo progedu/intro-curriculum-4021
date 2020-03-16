@@ -11,53 +11,53 @@ const Comment = require('../models/comment');
 const deleteScheduleAggregate = require('../routes/schedules').deleteScheduleAggregate;
 
 describe('/login', () => {
-  before(() => {
+  beforeAll(() => {
     passportStub.install(app);
     passportStub.login({ username: 'testuser' });
   });
 
-  after(() => {
+  afterAll(() => {
     passportStub.logout();
     passportStub.uninstall(app);
   });
 
-  it('ログインのためのリンクが含まれる', (done) => {
-    request(app)
+  test('ログインのためのリンクが含まれる', () => {
+    return request(app)
       .get('/login')
       .expect('Content-Type', 'text/html; charset=utf-8')
       .expect(/<a href="\/auth\/github"/)
-      .expect(200, done);
+      .expect(200);
   });
 
-  it('ログイン時はユーザー名が表示される', (done) => {
-    request(app)
+  test('ログイン時はユーザー名が表示される', () => {
+    return request(app)
       .get('/login')
       .expect(/testuser/)
-      .expect(200, done);
+      .expect(200);
   });
 });
 
 describe('/logout', () => {
-  it('/ にリダイレクトされる', (done) => {
-    request(app)
+  test('/ にリダイレクトされる', () => {
+    return request(app)
       .get('/logout')
       .expect('Location', '/')
-      .expect(302, done);
+      .expect(302);
   });
 });
 
 describe('/schedules', () => {
-  before(() => {
+  beforeAll(() => {
     passportStub.install(app);
     passportStub.login({ id: 0, username: 'testuser' });
   });
 
-  after(() => {
+  afterAll(() => {
     passportStub.logout();
     passportStub.uninstall(app);
   });
 
-  it('予定が作成でき、表示される', (done) => {
+  test('予定が作成でき、表示される', (done) => {
     User.upsert({ userId: 0, username: 'testuser' }).then(() => {
       request(app)
         .post('/schedules')
@@ -82,17 +82,17 @@ describe('/schedules', () => {
 });
 
 describe('/schedules/:scheduleId/users/:userId/candidates/:candidateId', () => {
-  before(() => {
+  beforeAll(() => {
     passportStub.install(app);
     passportStub.login({ id: 0, username: 'testuser' });
   });
 
-  after(() => {
+  afterAll(() => {
     passportStub.logout();
     passportStub.uninstall(app);
   });
 
-  it('出欠が更新できる', (done) => {
+  test('出欠が更新できる', (done) => {
     User.upsert({ userId: 0, username: 'testuser' }).then(() => {
       request(app)
         .post('/schedules')
@@ -104,8 +104,9 @@ describe('/schedules/:scheduleId/users/:userId/candidates/:candidateId', () => {
             where: { scheduleId: scheduleId }
           }).then((candidate) => {
             // 更新がされることをテスト
+            const userId = 0;
             request(app)
-              .post(`/schedules/${scheduleId}/users/${0}/candidates/${candidate.candidateId}`)
+              .post(`/schedules/${scheduleId}/users/${userId}/candidates/${candidate.candidateId}`)
               .send({ availability: 2 }) // 出席に更新
               .expect('{"status":"OK","availability":2}')
               .end((err, res) => {
@@ -124,17 +125,17 @@ describe('/schedules/:scheduleId/users/:userId/candidates/:candidateId', () => {
 });
 
 describe('/schedules/:scheduleId/users/:userId/comments', () => {
-  before(() => {
+  beforeAll(() => {
     passportStub.install(app);
     passportStub.login({ id: 0, username: 'testuser' });
   });
 
-  after(() => {
+  afterAll(() => {
     passportStub.logout();
     passportStub.uninstall(app);
   });
 
-  it('コメントが更新できる', (done) => {
+  test('コメントが更新できる', (done) => {
     User.upsert({ userId: 0, username: 'testuser' }).then(() => {
       request(app)
         .post('/schedules')
@@ -143,8 +144,9 @@ describe('/schedules/:scheduleId/users/:userId/comments', () => {
           const createdSchedulePath = res.headers.location;
           const scheduleId = createdSchedulePath.split('/schedules/')[1];
           // 更新がされることをテスト
+          const userId = 0;
           request(app)
-            .post(`/schedules/${scheduleId}/users/${0}/comments`)
+            .post(`/schedules/${scheduleId}/users/${userId}/comments`)
             .send({ comment: 'testcomment' })
             .expect('{"status":"OK","comment":"testcomment"}')
             .end((err, res) => {
@@ -161,18 +163,19 @@ describe('/schedules/:scheduleId/users/:userId/comments', () => {
   });
 });
 
+
 describe('/schedules/:scheduleId?edit=1', () => {
-  before(() => {
+  beforeAll(() => {
     passportStub.install(app);
     passportStub.login({ id: 0, username: 'testuser' });
   });
 
-  after(() => {
+  afterAll(() => {
     passportStub.logout();
     passportStub.uninstall(app);
   });
 
-  it('予定が更新でき、候補が追加できる', (done) => {
+  test('予定が更新でき、候補が追加できる', (done) => {
     User.upsert({ userId: 0, username: 'testuser' }).then(() => {
       request(app)
         .post('/schedules')
@@ -205,17 +208,17 @@ describe('/schedules/:scheduleId?edit=1', () => {
 });
 
 describe('/schedules/:scheduleId?delete=1', () => {
-  before(() => {
+  beforeAll(() => {
     passportStub.install(app);
     passportStub.login({ id: 0, username: 'testuser' });
   });
 
-  after(() => {
+  afterAll(() => {
     passportStub.logout();
     passportStub.uninstall(app);
   });
 
-  it('予定に関連する全ての情報が削除できる', (done) => {
+  test('予定に関連する全ての情報が削除できる', (done) => {
     User.upsert({ userId: 0, username: 'testuser' }).then(() => {
       request(app)
         .post('/schedules')
@@ -229,8 +232,9 @@ describe('/schedules/:scheduleId?delete=1', () => {
             where: { scheduleId: scheduleId }
           }).then((candidate) => {
             return new Promise((resolve) => {
+              const userId = 0;
               request(app)
-                .post(`/schedules/${scheduleId}/users/${0}/candidates/${candidate.candidateId}`)
+                .post(`/schedules/${scheduleId}/users/${userId}/candidates/${candidate.candidateId}`)
                 .send({ availability: 2 }) // 出席に更新
                 .end((err, res) => {
                   if (err) done(err);
@@ -241,8 +245,9 @@ describe('/schedules/:scheduleId?delete=1', () => {
 
           // コメント作成
           const promiseComment = new Promise((resolve) => {
+            const userId = 0;
             request(app)
-              .post(`/schedules/${scheduleId}/users/${0}/comments`)
+              .post(`/schedules/${scheduleId}/users/${userId}/comments`)
               .send({ comment: 'testcomment' })
               .expect('{"status":"OK","comment":"testcomment"}')
               .end((err, res) => {
