@@ -75,7 +75,7 @@ describe('/schedules', () => {
             .expect(/テスト候補2/)
             .expect(/テスト候補3/)
             .expect(200)
-            .end((err, res) => { deleteScheduleAggregate(createdSchedulePath.split('/schedules/')[1], done, err); });
+            .end((err, res) => { deleteScheduleAggregate(createdSchedulePath.split('/schedules/')[1], done, err);});
         });
     });
   });
@@ -180,7 +180,7 @@ describe('/schedules/:scheduleId?edit=1', () => {
         .end((err, res) => {
           const createdSchedulePath = res.headers.location;
           const scheduleId = createdSchedulePath.split('/schedules/')[1];
-          // 更新がされることをテスト
+          //更新がされることをテスト
           request(app)
             .post(`/schedules/${scheduleId}?edit=1`)
             .send({ scheduleName: 'テスト更新予定2', memo: 'テスト更新メモ2', candidates: 'テスト更新候補2' })
@@ -229,8 +229,9 @@ describe('/schedules/:scheduleId?delete=1', () => {
             where: { scheduleId: scheduleId }
           }).then((candidate) => {
             return new Promise((resolve) => {
+              const userId = 0;
               request(app)
-                .post(`/schedules/${scheduleId}/users/${0}/candidates/${candidate.candidateId}`)
+                .post(`/schedules/${scheduleId}/users/${userId}/candidates/${candidate.candidateId}`)
                 .send({ availability: 2 }) // 出席に更新
                 .end((err, res) => {
                   if (err) done(err);
@@ -241,8 +242,9 @@ describe('/schedules/:scheduleId?delete=1', () => {
 
           // コメント作成
           const promiseComment = new Promise((resolve) => {
+            const userId = 0;
             request(app)
-              .post(`/schedules/${scheduleId}/users/${0}/comments`)
+              .post(`/schedules/${scheduleId}/users/${userId}/comments`)
               .send({ comment: 'testcomment' })
               .expect('{"status":"OK","comment":"testcomment"}')
               .end((err, res) => {
@@ -268,20 +270,20 @@ describe('/schedules/:scheduleId?delete=1', () => {
             const p1 = Comment.findAll({
               where: { scheduleId: scheduleId }
             }).then((comments) => {
-              // TODO テストを実装
+              assert.equal(comments.length, 0);
             });
             const p2 = Availability.findAll({
               where: { scheduleId: scheduleId }
             }).then((availabilities) => {
-              // TODO テストを実装
+              assert.equal(availabilities.length, 0);
             });
             const p3 = Candidate.findAll({
               where: { scheduleId: scheduleId }
             }).then((candidates) => {
-              // TODO テストを実装
+              assert.equal(candidates.length, 0);
             });
             const p4 = Schedule.findByPk(scheduleId).then((schedule) => {
-              // TODO テストを実装
+              assert.equal(!schedule, true);
             });
             Promise.all([p1, p2, p3, p4]).then(() => {
               if (err) return done(err);
