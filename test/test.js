@@ -268,20 +268,32 @@ describe('/schedules/:scheduleId?delete=1', () => {
             const p1 = Comment.findAll({
               where: { scheduleId: scheduleId }
             }).then((comments) => {
-              // TODO テストを実装
+              comments.forEach(
+                (elem) => {
+                  return assert.equal(!elem, true);
+                }
+              );
             });
             const p2 = Availability.findAll({
               where: { scheduleId: scheduleId }
             }).then((availabilities) => {
-              // TODO テストを実装
+              availabilities.forEach(
+                (elem) => {
+                  return assert.equal(!elem, true);
+                }
+              );
             });
             const p3 = Candidate.findAll({
               where: { scheduleId: scheduleId }
             }).then((candidates) => {
-              // TODO テストを実装
+              candidates.forEach(
+                (elem) => {
+                  return assert.equal(!elem, true);
+                }
+              );
             });
             const p4 = Schedule.findByPk(scheduleId).then((schedule) => {
-              // TODO テストを実装
+              assert.equal(!schedule, true);
             });
             Promise.all([p1, p2, p3, p4]).then(() => {
               if (err) return done(err);
