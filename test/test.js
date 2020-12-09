@@ -226,6 +226,7 @@ describe('/schedules/:scheduleId?delete=1', () => {
   });
 
   test('予定に関連する全ての情報が削除できる', (done) => {
+    // User テーブルに ユーザーの情報を格納
     User.upsert({ userId: 0, username: 'testuser' }).then(() => {
       request(app)
         .post('/schedules')
@@ -279,19 +280,23 @@ describe('/schedules/:scheduleId?delete=1', () => {
               where: { scheduleId: scheduleId }
             }).then((comments) => {
               // TODO テストを実装
+              comments.map(c => {assert.strictEqual(c.length === 0); });
             });
             const p2 = Availability.findAll({
               where: { scheduleId: scheduleId }
             }).then((availabilities) => {
               // TODO テストを実装
+              availabilities.map(a => {assert.strictEqual(a.length === 0); });
             });
             const p3 = Candidate.findAll({
               where: { scheduleId: scheduleId }
             }).then((candidates) => {
               // TODO テストを実装
+              candidates.map(c => {assert.strictEqual(c.length === 0); });
             });
             const p4 = Schedule.findByPk(scheduleId).then((schedule) => {
               // TODO テストを実装
+              assert.strictEqual(!schedule, true);    // schedule の中身が null になっているかどうか判定
             });
             Promise.all([p1, p2, p3, p4]).then(() => {
               if (err) return done(err);
