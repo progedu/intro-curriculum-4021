@@ -20,7 +20,7 @@ describe('/login', () => {
     passportStub.logout();
     passportStub.uninstall(app);
   });
-  
+
   test('ログインのためのリンクが含まれる', () => {
     return request(app)
       .get('/login')
@@ -28,7 +28,7 @@ describe('/login', () => {
       .expect(/<a href="\/auth\/github"/)
       .expect(200);
   });
-  
+
   test('ログイン時はユーザー名が表示される', () => {
     return request(app)
       .get('/login')
@@ -95,7 +95,7 @@ describe('/schedules/:scheduleId/users/:userId/candidates/:candidateId', () => {
     passportStub.logout();
     passportStub.uninstall(app);
   });
-  
+
   test('出欠が更新できる', (done) => {
     User.upsert({ userId: 0, username: 'testuser' }).then(() => {
       request(app)
@@ -274,24 +274,30 @@ describe('/schedules/:scheduleId?delete=1', () => {
           });
 
           // テスト
+          // findAll 関数は、戻ってきた Promise オブジェクトの then に渡す関数の引数として、
+          //データモデルのオブジェクトの配列を渡します。 findByPk 関数は、then に渡す関数の引数として、
+          // データモデルのオブジェクトを渡し、存在しない場合は null という値となります。
           promiseDeleted.then(() => {
             const p1 = Comment.findAll({
               where: { scheduleId: scheduleId }
             }).then((comments) => {
-              // TODO テストを実装
+              assert.strictEqual(comments.length, 0);
             });
             const p2 = Availability.findAll({
               where: { scheduleId: scheduleId }
             }).then((availabilities) => {
-              // TODO テストを実装
+              assert.strictEqual(availabilities.length, 0);
+
             });
             const p3 = Candidate.findAll({
               where: { scheduleId: scheduleId }
             }).then((candidates) => {
               // TODO テストを実装
+              assert.strictEqual(candidates.length, 0);
             });
             const p4 = Schedule.findByPk(scheduleId).then((schedule) => {
               // TODO テストを実装
+              assert.strictEqual(!schedule, true);
             });
             Promise.all([p1, p2, p3, p4]).then(() => {
               if (err) return done(err);
