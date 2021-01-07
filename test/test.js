@@ -10,6 +10,9 @@ const Availability = require('../models/availability');
 const Comment = require('../models/comment');
 const deleteScheduleAggregate = require('../routes/schedules').deleteScheduleAggregate;
 
+// length とよく出てくるが、これはその値の「個数」のこと。
+// comment.length だったら '～～' というように文字列の塊が一つだけあるか確認
+
 describe('/login', () => {
   beforeAll(() => {
     passportStub.install(app);
@@ -20,7 +23,7 @@ describe('/login', () => {
     passportStub.logout();
     passportStub.uninstall(app);
   });
-  
+
   test('ログインのためのリンクが含まれる', () => {
     return request(app)
       .get('/login')
@@ -28,7 +31,7 @@ describe('/login', () => {
       .expect(/<a href="\/auth\/github"/)
       .expect(200);
   });
-  
+
   test('ログイン時はユーザー名が表示される', () => {
     return request(app)
       .get('/login')
@@ -79,7 +82,7 @@ describe('/schedules', () => {
             .expect(/テスト候補2/)
             .expect(/テスト候補3/)
             .expect(200)
-            .end((err, res) => { deleteScheduleAggregate(createdSchedulePath.split('/schedules/')[1], done, err);});
+            .end((err, res) => { deleteScheduleAggregate(createdSchedulePath.split('/schedules/')[1], done, err); });
         });
     });
   });
@@ -95,7 +98,7 @@ describe('/schedules/:scheduleId/users/:userId/candidates/:candidateId', () => {
     passportStub.logout();
     passportStub.uninstall(app);
   });
-  
+
   test('出欠が更新できる', (done) => {
     User.upsert({ userId: 0, username: 'testuser' }).then(() => {
       request(app)
@@ -186,14 +189,14 @@ describe('/schedules/:scheduleId?edit=1', () => {
     User.upsert({ userId: 0, username: 'testuser' }).then(() => {
       request(app)
         .post('/schedules')
-        .send({ scheduleName: 'テスト更新予定1', memo: 'テスト更新メモ1', candidates: 'テスト更新候補1' })
+        .send({ scheduleName: 'テスト更新予定1', memo: 'テスト更新メモ1', candidates: 'テスト更新候補1' }) // 一つ目の候補を作成
         .end((err, res) => {
           const createdSchedulePath = res.headers.location;
           const scheduleId = createdSchedulePath.split('/schedules/')[1];
           // 更新がされることをテスト
           request(app)
             .post(`/schedules/${scheduleId}?edit=1`)
-            .send({ scheduleName: 'テスト更新予定2', memo: 'テスト更新メモ2', candidates: 'テスト更新候補2' })
+            .send({ scheduleName: 'テスト更新予定2', memo: 'テスト更新メモ2', candidates: 'テスト更新候補2' }) // 二つ目の候補を作成（追加）
             .end((err, res) => {
               Schedule.findByPk(scheduleId).then((s) => {
                 assert.strictEqual(s.scheduleName, 'テスト更新予定2');
@@ -203,9 +206,9 @@ describe('/schedules/:scheduleId?edit=1', () => {
                 where: { scheduleId: scheduleId },
                 order: [['candidateId', 'ASC']]
               }).then((candidates) => {
-                assert.strictEqual(candidates.length, 2);
-                assert.strictEqual(candidates[0].candidateName, 'テスト更新候補1');
-                assert.strictEqual(candidates[1].candidateName, 'テスト更新候補2');
+                assert.strictEqual(candidates.length, 2); // 上記13,14行目で書いたこと。192,199行目で候補を二つ作成したので length は二つ
+                assert.strictEqual(candidates[0].candidateName, 'テスト更新候補1'); // 一つ目の候補
+                assert.strictEqual(candidates[1].candidateName, 'テスト更新候補2'); // 二つ目の候補
                 deleteScheduleAggregate(scheduleId, done, err);
               });
             });
@@ -279,19 +282,23 @@ describe('/schedules/:scheduleId?delete=1', () => {
               where: { scheduleId: scheduleId }
             }).then((comments) => {
               // TODO テストを実装
+              assert.strictEqual(comments.length, 0);
             });
             const p2 = Availability.findAll({
               where: { scheduleId: scheduleId }
             }).then((availabilities) => {
               // TODO テストを実装
+              assert.strictEqual(availabilities.length, 0);
             });
             const p3 = Candidate.findAll({
               where: { scheduleId: scheduleId }
             }).then((candidates) => {
               // TODO テストを実装
+              assert.strictEqual(candidates.length, 0);
             });
             const p4 = Schedule.findByPk(scheduleId).then((schedule) => {
               // TODO テストを実装
+              assert.strictEqual(!schedule, true);
             });
             Promise.all([p1, p2, p3, p4]).then(() => {
               if (err) return done(err);
