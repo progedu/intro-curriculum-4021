@@ -278,7 +278,6 @@ describe('/schedules/:scheduleId?delete=1', () => {
             const p1 = Comment.findAll({
               where: { scheduleId: scheduleId }
             }).then((comments) => {
-              // TODO テストを実装
               assert.strictEqual(comments.length, 0);
             });
             const p2 = Availability.findAll({
