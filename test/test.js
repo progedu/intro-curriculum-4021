@@ -278,20 +278,20 @@ describe('/schedules/:scheduleId?delete=1', () => {
             const p1 = Comment.findAll({
               where: { scheduleId: scheduleId }
             }).then((comments) => {
-              assert.strictEqual(!comments.length, true);
+              assert.strictEqual(comments.length, 0);
             });
             const p2 = Availability.findAll({
               where: { scheduleId: scheduleId }
             }).then((availabilities) => {
-              assert.strictEqual(!availabilities.length, true);
+              assert.strictEqual(availabilities.length, 0);
             });
             const p3 = Candidate.findAll({
               where: { scheduleId: scheduleId }
             }).then((candidates) => {
-              assert.strictEqual(!candidates.length, true);
+              assert.strictEqual(candidates.length, 0);
             });
             const p4 = Schedule.findByPk(scheduleId).then((schedule) => {
-              assert.strictEqual(!schedule, true);
+              assert.strictEqual(!schedule,"Schedule データが残っている");
             });
             Promise.all([p1, p2, p3, p4]).then(() => {
               if (err) return done(err);
