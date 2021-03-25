@@ -24,7 +24,9 @@ router.post('/', authenticationEnsurer, (req, res, next) => {
     createdBy: req.user.id,
     updatedAt: updatedAt
   }).then((schedule) => {
-    createCandidatesAndRedirect(parseCandidateNames(req), scheduleId, res);
+    createCandidates(parseCandidateNames(req), scheduleId).then(a => {
+      res.redirect('/schedules/' + scheduleId);
+    })
   });
 });
 
@@ -169,7 +171,9 @@ router.post('/:scheduleId', authenticationEnsurer, (req, res, next) => {
           // 追加されているかチェック
           const candidateNames = parseCandidateNames(req);
           if (candidateNames) {
-            createCandidatesAndRedirect(candidateNames, schedule.scheduleId, res);
+            createCandidates(candidateNames, schedule.scheduleId).then(candidates =>  {
+              res.redirect('/schedules/' + schedule.scheduleId);
+            });
           } else {
             res.redirect('/schedules/' + schedule.scheduleId);
           }
@@ -221,16 +225,19 @@ function deleteScheduleAggregate(scheduleId, done, err) {
 
 router.deleteScheduleAggregate = deleteScheduleAggregate;
 
-function createCandidatesAndRedirect(candidateNames, scheduleId, res) {
-  const candidates = candidateNames.map((c) => {
-    return {
-      candidateName: c,
-      scheduleId: scheduleId
-    };
+function createCandidates(candidateNames, scheduleId) {
+  return new Promise(resolve => {
+    const candidates = candidateNames.map((c) => {
+      return {
+        candidateName: c,
+        scheduleId: scheduleId
+      };
+    });
+    Candidate.bulkCreate(candidates).then((candidates) => {
+      resolve(candidates);
+    });
   });
-  Candidate.bulkCreate(candidates).then(() => {
-    res.redirect('/schedules/' + scheduleId);
-  });
+ 
 }
 
 function parseCandidateNames(req) {
