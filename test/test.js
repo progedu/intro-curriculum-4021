@@ -250,6 +250,7 @@ describe('/schedules/:scheduleId?delete=1', () => {
           });
 
           // コメント作成
+          //PromiseコメントでPromiseオブジェクト受け取る
           const promiseComment = new Promise((resolve) => {
             request(app)
               .post(`/schedules/${scheduleId}/users/${0}/comments`)
@@ -262,7 +263,11 @@ describe('/schedules/:scheduleId?delete=1', () => {
           });
 
           // 削除
-          const promiseDeleted = Promise.all([promiseAvailability, promiseComment]).then(() => {
+          //
+          const promiseDeleted = Promise.all([
+            //下のPromiseが終わったら.then実行する(DBからデータ削除されてるかのテスト)
+            promiseAvailability, 
+            promiseComment]).then(() => {
             return new Promise((resolve) => {
               request(app)
                 .post(`/schedules/${scheduleId}?delete=1`)
@@ -279,19 +284,26 @@ describe('/schedules/:scheduleId?delete=1', () => {
               where: { scheduleId: scheduleId }
             }).then((comments) => {
               // TODO テストを実装
+              assert.strictEqual(comments.length, 0);
+              //データの長さ0なら消えてる
             });
             const p2 = Availability.findAll({
               where: { scheduleId: scheduleId }
             }).then((availabilities) => {
               // TODO テストを実装
+              assert.strictEqual(availabilities.length, 0);
             });
             const p3 = Candidate.findAll({
               where: { scheduleId: scheduleId }
             }).then((candidates) => {
               // TODO テストを実装
+              assert.strictEqual(candidates.length, 0);
             });
             const p4 = Schedule.findByPk(scheduleId).then((schedule) => {
               // TODO テストを実装
+              //別解
+              //assert.deepStrictEqual(schedule === null);
+              assert.strictEqual(!schedule, true);
             });
             Promise.all([p1, p2, p3, p4]).then(() => {
               if (err) return done(err);
