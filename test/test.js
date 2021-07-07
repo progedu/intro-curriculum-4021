@@ -8,6 +8,7 @@ const Schedule = require('../models/schedule');
 const Candidate = require('../models/candidate');
 const Availability = require('../models/availability');
 const Comment = require('../models/comment');
+const { truncate } = require('fs');
 const deleteScheduleAggregate = require('../routes/schedules').deleteScheduleAggregate;
 
 describe('/login', () => {
@@ -279,19 +280,23 @@ describe('/schedules/:scheduleId?delete=1', () => {
               where: { scheduleId: scheduleId }
             }).then((comments) => {
               // TODO テストを実装
+              assert.equal(comments.length, 0);
             });
             const p2 = Availability.findAll({
               where: { scheduleId: scheduleId }
             }).then((availabilities) => {
               // TODO テストを実装
+              assert.equal(availabilities.length, 0);
             });
             const p3 = Candidate.findAll({
               where: { scheduleId: scheduleId }
             }).then((candidates) => {
               // TODO テストを実装
+              assert.equal(candidates.length, 0);
             });
             const p4 = Schedule.findByPk(scheduleId).then((schedule) => {
               // TODO テストを実装
+              assert.equal(!schedule, true);
             });
             Promise.all([p1, p2, p3, p4]).then(() => {
               if (err) return done(err);
