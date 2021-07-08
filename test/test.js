@@ -269,19 +269,31 @@ describe('/schedules/:scheduleId?delete=1', () => {
               where: { scheduleId: scheduleId }
             }).then((comments) => {
               // TODO テストを実装
+              assert.equal(!comments, true);
+              if(err) return done(err);
+              done();
             });
             const p2 = Availability.findAll({
               where: { scheduleId: scheduleId }
             }).then((availabilities) => {
               // TODO テストを実装
+              assert.equal(!availabilities, true);
+              if(err) return done(err);
+              done();                          
             });
             const p3 = Candidate.findAll({
               where: { scheduleId: scheduleId }
             }).then((candidates) => {
               // TODO テストを実装
+              assert.equal(!candidates, true);
+              if(err) return done(err);
+              done();
             });
             const p4 = Schedule.findByPk(scheduleId).then((schedule) => {
               // TODO テストを実装
+              assert.equal(!schedule, true);
+              if(err) return done(err);
+              done();
             });
             Promise.all([p1, p2, p3, p4]).then(() => {
               if (err) return done(err);
